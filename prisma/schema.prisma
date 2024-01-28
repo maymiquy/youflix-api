@@ -1,0 +1,44 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum PopularStatus {
+  POPULAR
+  NOTPOPULAR
+}
+
+model Genre {
+  id     Int     @id @unique @default(autoincrement()) @map("id_genre")
+  name   String  @map("name")
+  movies Movie[]
+
+  @@index([id, name])
+  @@map("genres")
+}
+
+model Movie {
+  id          BigInt        @id @unique @default(autoincrement()) @map("id_movie")
+  title       String        @map("title")
+  description String        @map("description")
+  genreId     Int           @map("genre_id")
+  genre       Genre         @relation(fields: [genreId], references: [id])
+  imgUrl      String        @map("img_url")
+  director    String        @map("director")
+  rate        Float         @map("rate")
+  isPopular   PopularStatus @default(POPULAR) @map("is_popular")
+  releaseDate DateTime      @map("release_date") @db.Date
+  year        Int           @map("year")
+  createAt    DateTime      @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt   DateTime      @default(now()) @updatedAt @map("updated_at") @db.Timestamp(6)
+
+  @@index([id, title, genreId, rate, year, isPopular])
+  @@map("movies")
+}
