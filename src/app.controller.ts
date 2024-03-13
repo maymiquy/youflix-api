@@ -1,91 +1,39 @@
-import {
-  Controller,
-  Get,
-  HttpStatus,
-  Param,
-  Post,
-  Req,
-  Res,
-} from '@nestjs/common';
+import { Controller, Get, HttpStatus, Res } from '@nestjs/common';
 import { AppService } from './app.service';
-import { Request, Response } from 'express';
+import { Response } from 'express';
+import { ConfigService } from '@nestjs/config';
 
 @Controller({
   path: 'api',
   version: '1',
 })
 export class AppController {
-  constructor(private readonly appService: AppService) {}
+  constructor(
+    private readonly appService: AppService,
+    private readonly configService: ConfigService
+  ) {}
 
-  // Route '/'
-  @Get('/')
-  getApi(): string {
-    return this.appService.getApi();
+  @Get()
+  index(@Res() res: Response) {
+    const result = this.appService.getWellcome();
+    return res.status(HttpStatus.OK).send(
+      JSON.stringify({
+        message: result,
+      })
+    );
   }
 
-  // Route 'movies'
-  @Get('movies')
-  index(@Req() req: Request, @Res() res: Response) {
-    try {
-      return res.status(HttpStatus.OK).send(this.appService.getAllMovie());
-    } catch (e) {
-      return res
-        .status(HttpStatus.BAD_REQUEST)
-        .send(`Error occurred while showing all movies: ${e}`);
-    }
-  }
+  @Get('config')
+  getConfig(@Res() res: Response) {
+    const port = Number(this.configService.get<number>('PORT'));
+    const appName = this.configService.get<string>('APP_NAME');
+    // const dbHost = this.configService.get('DB_HOST');
 
-  @Get('movie/show/:id')
-  show(
-    @Param('id') movieId: string,
-    @Req() req: Request,
-    @Res() res: Response
-  ) {
-    try {
-      return res
-        .status(HttpStatus.OK)
-        .send(this.appService.getMovieById(movieId));
-    } catch (e) {
-      return res
-        .status(HttpStatus.BAD_REQUEST)
-        .send(`Error occurred while showing movie: ${e}`);
-    }
-  }
-
-  @Get('movies/popular')
-  popularity(@Req() req: Request, @Res() res: Response) {
-    try {
-      return res
-        .status(HttpStatus.OK)
-        .send(this.appService.getPopularMovies(true));
-    } catch (e) {
-      return res
-        .status(HttpStatus.BAD_REQUEST)
-        .send(`Error occurred while showing popular movies: ${e}`);
-    }
-  }
-
-  @Get('movies/recomended')
-  recomended(@Req() req: Request, @Res() res: Response) {
-    try {
-      return res
-        .status(HttpStatus.OK)
-        .send(this.appService.getRecomendedMovies());
-    } catch (e) {
-      return res
-        .status(HttpStatus.BAD_REQUEST)
-        .send(`Error occurred while showing recomended movies: ${e}`);
-    }
-  }
-
-  @Post('movies/add')
-  create(@Req() req: Request, @Res() res: Response) {
-    try {
-      return res.status(HttpStatus.OK).send('Success Add new movie');
-    } catch (e) {
-      return res
-        .status(HttpStatus.BAD_REQUEST)
-        .send(`Error occurred while adding new movie ${e}`);
-    }
+    return res.status(HttpStatus.OK).send(
+      JSON.stringify({
+        appName: appName,
+        port: port,
+      })
+    );
   }
 }
