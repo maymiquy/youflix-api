@@ -8,9 +8,11 @@ import {
   Post,
   Req,
   Res,
+  UseGuards,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { CreateMovieDto } from './dto/create-movie.dto';
+import { JwtAuthGuard } from 'src/libs/jwt/jwt.guard';
 
 @Controller({
   path: 'api/movies',
@@ -19,6 +21,7 @@ import { CreateMovieDto } from './dto/create-movie.dto';
 export class MovieController {
   constructor(private readonly movieService: MovieService) {}
 
+  @UseGuards(JwtAuthGuard)
   @Get()
   index(@Req() req: Request, @Res() res: Response): Response<any> {
     const result = this.movieService.findAll();
