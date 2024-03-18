@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { RegisterDto } from './dto/register.dto';
 import * as bcrypt from 'bcrypt';
-import { jwtSecret } from 'src/utils/constant';
+import { jwtSecret, expireIn } from 'src/utils/constant';
 import { JwtService } from '@nestjs/jwt';
 import { Request, Response } from 'express';
 import { LoginDto } from './dto/login.dto';
@@ -90,6 +90,7 @@ export class AuthService {
 
     return this.jwtService.sign(payload, {
       secret: jwtSecret,
+      expiresIn: expireIn,
     });
   }
 }
