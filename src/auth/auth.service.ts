@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { RegisterDto } from './dto/register.dto';
 import * as bcrypt from 'bcrypt';
-import { jwtSecret, expireIn } from 'src/utils/constant';
+import { jwtSecret, expires } from 'src/utils/constant';
 import { JwtService } from '@nestjs/jwt';
 import { Request, Response } from 'express';
 import { LoginDto } from './dto/login.dto';
@@ -18,7 +18,7 @@ export class AuthService {
     private jwtService: JwtService
   ) {}
 
-  async signIn(loginDto: LoginDto, req: Request, res: Response) {
+  async signIn(loginDto: LoginDto, req: Request, res: Response): Promise<any> {
     const { email, password } = loginDto;
 
     const loginUser = await this.prismaService.user.findUnique({
@@ -47,7 +47,9 @@ export class AuthService {
       throw new ForbiddenException('Something went wrong, please try again');
     }
 
-    res.cookie('token', token, {});
+    const expiresAt = new Date(Date.now() + Number(expires) * 60 * 1000);
+
+    res.cookie('token', token, { expires: expiresAt, httpOnly: true });
   }
 
   async signUp(registerDto: RegisterDto) {
@@ -90,7 +92,6 @@ export class AuthService {
 
     return this.jwtService.sign(payload, {
       secret: jwtSecret,
-      expiresIn: expireIn,
     });
   }
 }

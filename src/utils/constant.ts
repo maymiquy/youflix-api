@@ -1,2 +1,4 @@
 export const jwtSecret = process.env.JWT_SECRET;
-export const expireIn = process.env.JWT_EXPIRES;
+export const expires = process.env.JWT_EXPIRES;
+
+console.log(expires);
