@@ -25,16 +25,24 @@ export class UserController {
 
   @Get()
   async findAll(@Req() req: Request, @Res() res: Response): Promise<any> {
-    const user = await this.userService.findAll();
+    const data = await this.userService.findAll();
     try {
+      if (!data)
+        return res.status(HttpStatus.NOT_FOUND).send({
+          status: HttpStatus.NOT_FOUND,
+          message: `Not found, Cannot find users`,
+        });
+
       return res.status(HttpStatus.OK).json({
+        status: HttpStatus.OK,
         message: 'Successfully get all user',
-        data: user,
+        data: data,
       });
     } catch (e) {
-      return res
-        .status(HttpStatus.BAD_REQUEST)
-        .send({ message: `Error occurred while showing user : ${e}` });
+      return res.status(HttpStatus.BAD_REQUEST).send({
+        status: HttpStatus.BAD_REQUEST,
+        message: `Error occurred while showing user : ${e}`,
+      });
     }
   }
 
@@ -44,16 +52,24 @@ export class UserController {
     @Req() req: Request,
     @Param('id') id: string
   ) {
+    const data = await this.userService.findOne(id);
     try {
-      const user = await this.userService.findOne(id);
-      return res.status(HttpStatus.OK).send({
-        message: `Successfully get user by id: ${id}`,
-        data: user,
+      if (!data)
+        return res.status(HttpStatus.NOT_FOUND).send({
+          status: HttpStatus.NOT_FOUND,
+          message: `Not found, Cannot find user by id: ${id}`,
+        });
+
+      return res.status(HttpStatus.OK).json({
+        status: HttpStatus.OK,
+        message: `Successfully find user by id: ${id}`,
+        data: data,
       });
     } catch (e) {
-      return res
-        .status(HttpStatus.BAD_REQUEST)
-        .send({ message: `Error occurred while get user by id: ${e}` });
+      return res.status(HttpStatus.BAD_REQUEST).send({
+        status: HttpStatus.BAD_REQUEST,
+        message: `Error occurred while get user by id: ${e}`,
+      });
     }
   }
 
