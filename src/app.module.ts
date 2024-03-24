@@ -6,6 +6,7 @@ import { ConfigModule } from '@nestjs/config';
 import { PrismaService } from './libs/prisma/prisma.service';
 import { JwtService } from '@nestjs/jwt';
 import { AuthModule } from './auth/auth.module';
+import { UserModule } from './user/user.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { AuthModule } from './auth/auth.module';
       envFilePath: process.cwd() + '.env',
     }),
     AuthModule,
+    UserModule,
   ],
   controllers: [MovieController],
   providers: [MovieService, PrismaService, JwtService],
