@@ -74,12 +74,57 @@ export class UserController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.userService.update(id, updateUserDto);
+  async update(
+    @Res() res: Response,
+    @Req() req: Request,
+    @Param('id') id: string,
+    @Body() updateUserDto: UpdateUserDto
+  ) {
+    const data = await this.userService.update(id, updateUserDto);
+    try {
+      if (!data)
+        return res.status(HttpStatus.NOT_FOUND).send({
+          status: HttpStatus.NOT_FOUND,
+          message: `Not found, Cannot update user with id: ${id}`,
+        });
+
+      return res.status(HttpStatus.OK).json({
+        status: HttpStatus.OK,
+        message: `Successfully update user with id: ${id}`,
+        data: data,
+      });
+    } catch (e) {
+      return res.status(HttpStatus.BAD_REQUEST).send({
+        status: HttpStatus.BAD_REQUEST,
+        message: `Error occurred while update user with id: ${e}`,
+      });
+    }
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.userService.remove(id);
+  async remove(
+    @Res() res: Response,
+    @Req() req: Request,
+    @Param('id') id: string
+  ) {
+    const data = await this.userService.remove(id);
+    try {
+      if (!data)
+        return res.status(HttpStatus.NOT_FOUND).send({
+          status: HttpStatus.NOT_FOUND,
+          message: `Not found, Cannot delete user by id: ${id}`,
+        });
+
+      return res.status(HttpStatus.OK).json({
+        status: HttpStatus.OK,
+        message: `Successfully delete user by id: ${id}`,
+        data: data,
+      });
+    } catch (error) {
+      return res.status(HttpStatus.BAD_REQUEST).send({
+        status: HttpStatus.BAD_REQUEST,
+        message: `Error occurred while delete user by id: ${error}`,
+      });
+    }
   }
 }
