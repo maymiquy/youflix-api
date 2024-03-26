@@ -49,7 +49,9 @@ export class AuthService {
 
     const expiresAt = new Date(Date.now() + Number(expires) * 60 * 1000);
 
-    res.cookie('token', token, { expires: expiresAt, httpOnly: true });
+    return res.cookie('token', token, {
+      expires: expiresAt,
+    });
   }
 
   async signUp(registerDto: RegisterDto) {
