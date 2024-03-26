@@ -14,7 +14,7 @@ export class UserService {
     return await this.prismaService.user.findUnique({ where: { id: id } });
   }
 
-  async update(id: string, updateUserDto: UpdateUserDto) {
+  async update(id: string, updateUserDto: UpdateUserDto): Promise<any> {
     return await this.prismaService.user.update({
       where: { id: id },
       data: {
@@ -23,14 +23,21 @@ export class UserService {
     });
   }
 
-  async remove(id: string) {
+  async remove(id: string): Promise<any> {
     return await this.prismaService.user.delete({
       where: { id: id },
     });
   }
 
-  search() {
-    return `this action search by name & email`;
+  async search({ query }: { query: string }): Promise<any> {
+    return await this.prismaService.user.findMany({
+      where: {
+        OR: [
+          { email: { contains: query, mode: 'insensitive' } },
+          { fullName: { contains: query, mode: 'insensitive' } },
+        ],
+      },
+    });
   }
 
   findStatus() {

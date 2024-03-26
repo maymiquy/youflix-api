@@ -9,6 +9,7 @@ import {
   Req,
   Res,
   HttpStatus,
+  Query,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -46,7 +47,7 @@ export class UserController {
     }
   }
 
-  @Get(':id')
+  @Get(`/user/:id`)
   async findOne(
     @Res() res: Response,
     @Req() req: Request,
@@ -73,7 +74,7 @@ export class UserController {
     }
   }
 
-  @Patch(':id')
+  @Patch('/:id')
   async update(
     @Res() res: Response,
     @Req() req: Request,
@@ -101,7 +102,7 @@ export class UserController {
     }
   }
 
-  @Delete(':id')
+  @Delete('/:id')
   async remove(
     @Res() res: Response,
     @Req() req: Request,
@@ -124,6 +125,34 @@ export class UserController {
       return res.status(HttpStatus.BAD_REQUEST).send({
         status: HttpStatus.BAD_REQUEST,
         message: `Error occurred while delete user by id: ${error}`,
+      });
+    }
+  }
+
+  @Get('/search')
+  async search(
+    @Res() res: Response,
+    @Req() req: Request,
+    @Query('q') query: string
+  ) {
+    try {
+      const data = await this.userService.search({ query });
+
+      if (data.length === 0)
+        return res.status(HttpStatus.NOT_FOUND).send({
+          status: HttpStatus.NOT_FOUND,
+          message: `Not found, Cannot search user ${query}, with query: ${query}`,
+        });
+
+      return res.status(HttpStatus.OK).json({
+        status: HttpStatus.OK,
+        message: 'Successfully search user',
+        data: data,
+      });
+    } catch (e) {
+      return res.status(HttpStatus.BAD_REQUEST).send({
+        status: HttpStatus.BAD_REQUEST,
+        message: `Error occurred while search user with query: ${e}`,
       });
     }
   }
