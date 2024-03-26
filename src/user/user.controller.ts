@@ -15,6 +15,7 @@ import { UserService } from './user.service';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { JwtAuthGuard } from 'src/libs/jwt/jwt.guard';
 import { Request, Response } from 'express';
+import { ActiveStatus } from '@prisma/client';
 
 @UseGuards(JwtAuthGuard)
 @Controller({
@@ -103,7 +104,7 @@ export class UserController {
   }
 
   @Delete('/:id')
-  async remove(
+  async destroy(
     @Res() res: Response,
     @Req() req: Request,
     @Param('id') id: string
@@ -133,7 +134,7 @@ export class UserController {
   async search(
     @Res() res: Response,
     @Req() req: Request,
-    @Query('q') query: string
+    @Query('query') query: string
   ) {
     try {
       const data = await this.userService.search({ query });
@@ -153,6 +154,33 @@ export class UserController {
       return res.status(HttpStatus.BAD_REQUEST).send({
         status: HttpStatus.BAD_REQUEST,
         message: `Error occurred while search user with query: ${e}`,
+      });
+    }
+  }
+
+  @Get('/status/:status')
+  async findStatus(
+    @Res() res: Response,
+    @Req() req: Request,
+    @Param('status') status: ActiveStatus
+  ) {
+    const data = await this.userService.findByStatus(status);
+    try {
+      if (data.length === 0)
+        return res.status(HttpStatus.NOT_FOUND).send({
+          status: HttpStatus.NOT_FOUND,
+          message: `Not found, Cannot find user by status: ${status}`,
+        });
+
+      return res.status(HttpStatus.OK).json({
+        status: HttpStatus.OK,
+        message: `Successfully find user by status: ${status}`,
+        data: data,
+      });
+    } catch (error) {
+      return res.status(HttpStatus.BAD_REQUEST).send({
+        status: HttpStatus.BAD_REQUEST,
+        message: `Error occurred while find user by status: ${error}`,
       });
     }
   }

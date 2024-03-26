@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { PrismaService } from 'src/libs/prisma/prisma.service';
+import { ActiveStatus } from '@prisma/client';
 
 @Injectable()
 export class UserService {
@@ -40,7 +41,9 @@ export class UserService {
     });
   }
 
-  findStatus() {
-    return `this action return by status`;
+  async findByStatus(status: ActiveStatus): Promise<any> {
+    return await this.prismaService.user.findMany({
+      where: { status: status },
+    });
   }
 }
