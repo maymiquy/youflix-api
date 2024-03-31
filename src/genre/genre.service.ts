@@ -1,17 +1,29 @@
 import { Injectable } from '@nestjs/common';
-import { CreateGenreDto } from './dto/create-genre.dto';
 import { UpdateGenreDto } from './dto/update-genre.dto';
 import { PrismaService } from 'src/libs/prisma/prisma.service';
+import { Genre, Prisma } from '@prisma/client';
 
 @Injectable()
 export class GenreService {
   constructor(private readonly prismaService: PrismaService) {}
-  create(createGenreDto: CreateGenreDto) {
-    return 'This action adds a new genre';
+  async createNew(data: Prisma.GenreCreateInput): Promise<Genre> {
+    const genreExist = await this.prismaService.genre.findUnique({
+      where: {
+        genreName: data.genreName,
+      },
+    });
+
+    if (genreExist) throw new Error('Genre already exist');
+
+    return await this.prismaService.genre.create({
+      data: {
+        ...data,
+      },
+    });
   }
 
-  findAll() {
-    return `This action returns all genre`;
+  async findAll(): Promise<Genre[]> {
+    return await this.prismaService.genre.findMany();
   }
 
   findOne(id: number) {
@@ -19,7 +31,7 @@ export class GenreService {
   }
 
   update(id: number, updateGenreDto: UpdateGenreDto) {
-    return `This action updates a #${id} genre`;
+    return `This action updates a #${id} genre ${updateGenreDto}`;
   }
 
   remove(id: number) {
