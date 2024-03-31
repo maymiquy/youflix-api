@@ -34,26 +34,26 @@ model User {
 }
 
 model Genre {
-  id     Int     @id @unique @default(autoincrement()) @map("id")
-  name   String  @map("name") @db.VarChar(100)
-  movies Movie[]
+  id        String  @id @unique @default(uuid()) @map("id")
+  genreName String  @unique @map("genre_name") @db.VarChar(100)
+  movies    Movie[]
 
-  @@index([id, name])
+  @@index([id, genreName])
   @@map("genres")
 }
 
 model Movie {
-  id          BigInt        @id @unique @default(autoincrement()) @map("id")
+  id          String        @id @unique @default(uuid()) @map("id")
   title       String        @map("title")
   description String        @map("description")
-  genreId     Int           @map("genre_id")
+  genreId     String        @map("genre_id")
   genre       Genre         @relation(fields: [genreId], references: [id])
   imgUrl      String        @map("img_url")
   director    String        @map("director")
-  rate        Float         @map("rate")
+  rate        String        @map("rate")
   isPopular   PopularStatus @default(POPULAR) @map("is_popular")
   releaseDate DateTime      @map("release_date") @db.Date
-  year        Int           @map("year")
+  year        String        @map("year")
   createAt    DateTime      @default(now()) @map("created_at") @db.Timestamp(6)
   updatedAt   DateTime      @default(now()) @updatedAt @map("updated_at") @db.Timestamp(6)
 
