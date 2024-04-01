@@ -77,8 +77,32 @@ export class GenreController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.genreService.findOne(+id);
+  async findOne(
+    @Req() req: Request,
+    @Res() res: Response,
+    @Param('id') id: string
+  ) {
+    const data = await this.genreService.findOne(id);
+
+    data === null
+      ? res.status(HttpStatus.NOT_FOUND).send({
+          status: HttpStatus.NOT_FOUND,
+          message: `Not found, Cannot find genre by id: ${id}`,
+        })
+      : data;
+
+    try {
+      return res.status(HttpStatus.OK).json({
+        status: HttpStatus.OK,
+        message: `Successfully get genre by id: ${id}`,
+        data: data,
+      });
+    } catch (error) {
+      return res.status(HttpStatus.BAD_REQUEST).send({
+        status: HttpStatus.BAD_REQUEST,
+        message: `Error occured while get genre: ${error}`,
+      });
+    }
   }
 
   @Patch(':id')

@@ -26,8 +26,8 @@ export class GenreService {
     return await this.prismaService.genre.findMany();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} genre`;
+  async findOne(id: string): Promise<Genre | null> {
+    return await this.prismaService.genre.findUnique({ where: { id: id } });
   }
 
   update(id: number, updateGenreDto: UpdateGenreDto) {
