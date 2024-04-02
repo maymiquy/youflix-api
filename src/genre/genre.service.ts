@@ -34,7 +34,9 @@ export class GenreService {
     return `This action updates a #${id} genre ${updateGenreDto}`;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} genre`;
+  async remove(id: string): Promise<Genre | null> {
+    return await this.prismaService.genre.delete({
+      where: { id: id },
+    });
   }
 }

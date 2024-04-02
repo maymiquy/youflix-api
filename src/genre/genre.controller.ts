@@ -84,7 +84,7 @@ export class GenreController {
   ) {
     const data = await this.genreService.findOne(id);
 
-    data === null
+    data === null || undefined
       ? res.status(HttpStatus.NOT_FOUND).send({
           status: HttpStatus.NOT_FOUND,
           message: `Not found, Cannot find genre by id: ${id}`,
@@ -111,7 +111,31 @@ export class GenreController {
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.genreService.remove(+id);
+  async destroy(
+    @Req() req: Request,
+    @Res() res: Response,
+    @Param('id') id: string
+  ) {
+    const data = await this.genreService.remove(id);
+
+    data === null || undefined
+      ? res.status(HttpStatus.NOT_FOUND).send({
+          status: HttpStatus.NOT_FOUND,
+          message: `Not found, Cannot delete genre by id: ${id}`,
+        })
+      : data;
+
+    try {
+      res.status(HttpStatus.OK).json({
+        status: HttpStatus.OK,
+        message: `Successfully, deleted genre by id: ${id}`,
+        data: data,
+      });
+    } catch (error) {
+      res.status(HttpStatus.BAD_REQUEST).send({
+        status: HttpStatus.BAD_REQUEST,
+        message: `Error occured while delete genre: ${error}`,
+      });
+    }
   }
 }
