@@ -1,5 +1,5 @@
 import { NestFactory } from '@nestjs/core';
-import { ValidationPipe, VersioningType } from '@nestjs/common';
+import { RequestMethod, ValidationPipe, VersioningType } from '@nestjs/common';
 import { AppModule } from './app.module';
 import * as dotenv from 'dotenv';
 import helmet from 'helmet';
@@ -8,13 +8,16 @@ import * as cookieParser from 'cookie-parser';
 dotenv.config();
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, {
+    logger: ['error', 'warn', 'log'],
+  });
 
   const port = Number(process.env.APP_PORT);
-  const host = process.env.APP_CLIENT;
+  const local = process.env.APP_CLIENT;
+  const host = process.env.APP_HOST;
   const appName = process.env.APP_NAME;
   const cors = {
-    origin: `${host}:${port}`,
+    origin: [`${local}:${port}`, `${host}`],
     methods: `GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS`,
   };
 
@@ -25,8 +28,13 @@ async function bootstrap() {
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
+      transform: true,
     })
   );
+
+  app.setGlobalPrefix('v1/api', {
+    exclude: [{ path: 'health', method: RequestMethod.GET }],
+  });
 
   app.use(helmet());
 
