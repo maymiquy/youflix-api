@@ -1,4 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { UpdateGenreDto } from './dto/update-genre.dto';
 import { PrismaService } from 'src/libs/prisma/prisma.service';
 import { Genre, Prisma } from '@prisma/client';
@@ -13,7 +17,12 @@ export class GenreService {
       },
     });
 
-    if (genreExist) throw new Error('Genre already exist');
+    if (genreExist)
+      throw new ConflictException({
+        status: 409,
+        message: `Conflict, cannot create genre`,
+        error: `Genre (${genreExist.genreName}) allready exist`,
+      });
 
     return await this.prismaService.genre.create({
       data: {
@@ -30,8 +39,29 @@ export class GenreService {
     return await this.prismaService.genre.findUnique({ where: { id: id } });
   }
 
-  update(id: number, updateGenreDto: UpdateGenreDto) {
-    return `This action updates a #${id} genre ${updateGenreDto}`;
+  async update(
+    id: string,
+    updateGenreDto: UpdateGenreDto
+  ): Promise<Genre | null> {
+    const genre = await this.prismaService.genre.findUnique({
+      where: {
+        id: id,
+      },
+    });
+
+    if (!genre)
+      throw new NotFoundException({
+        status: 404,
+        message: `Not found, cannot update genre by id: ${id}`,
+        error: `genre with id (${id}) doesn't exist`,
+      });
+
+    return await this.prismaService.genre.update({
+      where: { id: id },
+      data: {
+        ...updateGenreDto,
+      },
+    });
   }
 
   async remove(id: string): Promise<Genre | null> {

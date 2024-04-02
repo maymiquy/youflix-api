@@ -18,10 +18,7 @@ import { UpdateGenreDto } from './dto/update-genre.dto';
 import { Genre } from '@prisma/client';
 import { Request, Response } from 'express';
 
-@Controller({
-  path: 'api/genres',
-  version: '1',
-})
+@Controller('genres')
 export class GenreController {
   constructor(private readonly genreService: GenreService) {}
 
@@ -106,8 +103,26 @@ export class GenreController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateGenreDto: UpdateGenreDto) {
-    return this.genreService.update(+id, updateGenreDto);
+  async update(
+    @Req() req: Request,
+    @Res() res: Response,
+    @Param('id') id: string,
+    @Body() updateGenreDto: UpdateGenreDto
+  ) {
+    const data = await this.genreService.update(id, updateGenreDto);
+
+    try {
+      return res.status(HttpStatus.OK).json({
+        status: HttpStatus.OK,
+        message: `Successfully, updated genre by id: ${id}`,
+        data: data,
+      });
+    } catch (error) {
+      return res.status(HttpStatus.BAD_REQUEST).send({
+        status: HttpStatus.BAD_REQUEST,
+        message: `Error occured while update genre by id:  ${error}`,
+      });
+    }
   }
 
   @Delete(':id')
