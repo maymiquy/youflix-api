@@ -29,7 +29,7 @@ export class UserController {
   async findAll(@Req() req: Request, @Res() res: Response): Promise<any> {
     const data = await this.userService.findAll();
     try {
-      if (!data)
+      if (data.length === 0)
         return res.status(HttpStatus.NOT_FOUND).send({
           status: HttpStatus.NOT_FOUND,
           message: `Not found, Cannot find users`,
@@ -84,12 +84,6 @@ export class UserController {
   ) {
     const data = await this.userService.update(id, updateUserDto);
     try {
-      if (!data)
-        return res.status(HttpStatus.NOT_FOUND).send({
-          status: HttpStatus.NOT_FOUND,
-          message: `Not found, Cannot update user with id: ${id}`,
-        });
-
       return res.status(HttpStatus.OK).json({
         status: HttpStatus.OK,
         message: `Successfully update user with id: ${id}`,
@@ -111,12 +105,6 @@ export class UserController {
   ) {
     const data = await this.userService.remove(id);
     try {
-      if (!data)
-        return res.status(HttpStatus.NOT_FOUND).send({
-          status: HttpStatus.NOT_FOUND,
-          message: `Not found, Cannot delete user by id: ${id}`,
-        });
-
       return res.status(HttpStatus.OK).json({
         status: HttpStatus.OK,
         message: `Successfully delete user by id: ${id}`,

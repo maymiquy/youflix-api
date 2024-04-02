@@ -133,13 +133,6 @@ export class GenreController {
   ) {
     const data = await this.genreService.remove(id);
 
-    data === null || undefined
-      ? res.status(HttpStatus.NOT_FOUND).send({
-          status: HttpStatus.NOT_FOUND,
-          message: `Not found, Cannot delete genre by id: ${id}`,
-        })
-      : data;
-
     try {
       res.status(HttpStatus.OK).json({
         status: HttpStatus.OK,

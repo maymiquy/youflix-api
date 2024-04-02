@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { PrismaService } from 'src/libs/prisma/prisma.service';
 import { ActiveStatus } from '@prisma/client';
@@ -16,6 +16,19 @@ export class UserService {
   }
 
   async update(id: string, updateUserDto: UpdateUserDto): Promise<any> {
+    const user = await this.prismaService.user.findUnique({
+      where: {
+        id: id,
+      },
+    });
+
+    if (!user)
+      throw new NotFoundException({
+        status: 404,
+        error: `Not found, cannot update user by id: ${id}`,
+        message: `User with id (${id}) doesn't exist`,
+      });
+
     return await this.prismaService.user.update({
       where: { id: id },
       data: {
@@ -25,6 +38,19 @@ export class UserService {
   }
 
   async remove(id: string): Promise<any> {
+    const user = await this.prismaService.user.findUnique({
+      where: {
+        id: id,
+      },
+    });
+
+    if (!user)
+      throw new NotFoundException({
+        status: 404,
+        error: `Not found, cannot delete user by id: ${id}`,
+        message: `User with id (${id}) doesn't exist`,
+      });
+
     return await this.prismaService.user.delete({
       where: { id: id },
     });

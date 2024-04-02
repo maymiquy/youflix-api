@@ -20,8 +20,8 @@ export class GenreService {
     if (genreExist)
       throw new ConflictException({
         status: 409,
-        message: `Conflict, cannot create genre`,
-        error: `Genre (${genreExist.genreName}) allready exist`,
+        error: `Conflict, cannot create genre`,
+        message: `Genre (${genreExist.genreName}) allready exist`,
       });
 
     return await this.prismaService.genre.create({
@@ -65,6 +65,19 @@ export class GenreService {
   }
 
   async remove(id: string): Promise<Genre | null> {
+    const genre = await this.prismaService.genre.findUnique({
+      where: {
+        id: id,
+      },
+    });
+
+    if (!genre)
+      throw new NotFoundException({
+        status: 404,
+        error: `Not found, cannot delete genre by id: ${id}`,
+        message: `genre with id (${id}) doesn't exist`,
+      });
+
     return await this.prismaService.genre.delete({
       where: { id: id },
     });
