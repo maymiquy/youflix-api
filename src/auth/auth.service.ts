@@ -10,6 +10,7 @@ import { jwtSecret, expires } from 'src/utils/constant';
 import { JwtService } from '@nestjs/jwt';
 import { Request, Response } from 'express';
 import { LoginDto } from './dto/login.dto';
+import { User } from '@prisma/client';
 
 @Injectable()
 export class AuthService {
@@ -18,7 +19,11 @@ export class AuthService {
     private jwtService: JwtService
   ) {}
 
-  async signIn(loginDto: LoginDto, req: Request, res: Response): Promise<any> {
+  async signIn(
+    loginDto: LoginDto,
+    req: Request,
+    res: Response
+  ): Promise<Response | string | null | undefined> {
     const { email, password } = loginDto;
 
     const loginUser = await this.prismaService.user.findUnique({
@@ -54,7 +59,7 @@ export class AuthService {
     });
   }
 
-  async signUp(registerDto: RegisterDto) {
+  async signUp(registerDto: RegisterDto): Promise<User | RegisterDto> {
     const { fullName, email, password } = registerDto;
 
     const userExist = await this.prismaService.user.findUnique({
@@ -63,9 +68,7 @@ export class AuthService {
       },
     });
 
-    if (userExist) {
-      throw new Error('User already exist');
-    }
+    if (userExist) throw new Error('User already exist');
 
     const hashedPassword = await bcrypt.hash(password, 12);
 
@@ -78,15 +81,21 @@ export class AuthService {
     });
   }
 
-  async signOut(req: Request, res: Response) {
+  async signOut(req: Request, res: Response): Promise<Response> {
     return res.clearCookie('token');
   }
 
-  async comparePasswords(args: { hash: string; password: string }) {
+  async comparePasswords(args: {
+    hash: string;
+    password: string;
+  }): Promise<any> {
     return await bcrypt.compare(args.password, args.hash);
   }
 
-  async signToken(args: { id: string; email: string }) {
+  async signToken(args: {
+    id: string;
+    email: string;
+  }): Promise<string | null | undefined> {
     const payload = {
       id: args.id,
       email: args.email,

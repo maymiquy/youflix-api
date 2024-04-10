@@ -18,10 +18,7 @@ import { Request, Response } from 'express';
 import { ActiveStatus } from '@prisma/client';
 
 @UseGuards(JwtAuthGuard)
-@Controller({
-  path: 'api/users',
-  version: '1',
-})
+@Controller('users')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
@@ -48,7 +45,7 @@ export class UserController {
     }
   }
 
-  @Get(`/user/:id`)
+  @Get(':id')
   async findOne(
     @Res() res: Response,
     @Req() req: Request,
@@ -75,7 +72,7 @@ export class UserController {
     }
   }
 
-  @Patch('/:id')
+  @Patch(':id')
   async update(
     @Res() res: Response,
     @Req() req: Request,
@@ -97,7 +94,7 @@ export class UserController {
     }
   }
 
-  @Delete('/:id')
+  @Delete(':id')
   async destroy(
     @Res() res: Response,
     @Req() req: Request,
