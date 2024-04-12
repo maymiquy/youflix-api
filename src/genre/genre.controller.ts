@@ -33,14 +33,15 @@ export class GenreController {
 
     try {
       return res.status(HttpStatus.CREATED).json({
+        message: 'Successfully, create genre',
         status: HttpStatus.CREATED,
-        message: 'Successfully created genre',
         data: data,
       });
     } catch (error) {
       return res.status(HttpStatus.BAD_REQUEST).send({
-        status: HttpStatus.BAD_REQUEST,
         message: `Error occurred while creating genre: ${error}`,
+        error: 'Bad Request',
+        status: HttpStatus.BAD_REQUEST,
       });
     }
   }
@@ -54,21 +55,23 @@ export class GenreController {
 
     data.length === 0
       ? res.status(HttpStatus.NOT_FOUND).send({
+          message: 'Cannot find genre is wmpty',
+          error: 'Not found',
           status: HttpStatus.NOT_FOUND,
-          message: 'Not found, Cannot find genre',
         })
       : data;
 
     try {
       return res.status(HttpStatus.OK).json({
+        message: 'Successfully, get all genres',
         status: HttpStatus.OK,
-        message: 'Successfully get all genre',
         data: data,
       });
     } catch (error) {
       return res.status(HttpStatus.BAD_REQUEST).send({
-        status: HttpStatus.BAD_REQUEST,
         message: `Error occured while showing all genres: ${error}`,
+        error: 'Bad Request',
+        status: HttpStatus.BAD_REQUEST,
       });
     }
   }
@@ -83,21 +86,23 @@ export class GenreController {
 
     data === null || undefined
       ? res.status(HttpStatus.NOT_FOUND).send({
+          message: `Cannot find genre by id: ${id}`,
+          error: 'Not Found',
           status: HttpStatus.NOT_FOUND,
-          message: `Not found, Cannot find genre by id: ${id}`,
         })
       : data;
 
     try {
       return res.status(HttpStatus.OK).json({
+        message: `Successfully, get genre by id: ${id}`,
         status: HttpStatus.OK,
-        message: `Successfully get genre by id: ${id}`,
         data: data,
       });
     } catch (error) {
       return res.status(HttpStatus.BAD_REQUEST).send({
-        status: HttpStatus.BAD_REQUEST,
         message: `Error occured while get genre: ${error}`,
+        error: 'Bad Request',
+        status: HttpStatus.BAD_REQUEST,
       });
     }
   }
@@ -113,14 +118,15 @@ export class GenreController {
 
     try {
       return res.status(HttpStatus.OK).json({
-        status: HttpStatus.OK,
         message: `Successfully, updated genre by id: ${id}`,
+        status: HttpStatus.OK,
         data: data,
       });
     } catch (error) {
       return res.status(HttpStatus.BAD_REQUEST).send({
-        status: HttpStatus.BAD_REQUEST,
         message: `Error occured while update genre by id:  ${error}`,
+        error: 'Bad Request',
+        status: HttpStatus.BAD_REQUEST,
       });
     }
   }
@@ -135,14 +141,15 @@ export class GenreController {
 
     try {
       res.status(HttpStatus.OK).json({
-        status: HttpStatus.OK,
         message: `Successfully, deleted genre by id: ${id}`,
+        status: HttpStatus.OK,
         data: data,
       });
     } catch (error) {
       res.status(HttpStatus.BAD_REQUEST).send({
-        status: HttpStatus.BAD_REQUEST,
         message: `Error occured while delete genre: ${error}`,
+        error: 'Bad Request',
+        status: HttpStatus.BAD_REQUEST,
       });
     }
   }

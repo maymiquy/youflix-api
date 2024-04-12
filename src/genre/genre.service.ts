@@ -19,9 +19,9 @@ export class GenreService {
 
     if (genreExist)
       throw new ConflictException({
-        status: 409,
-        error: `Conflict, cannot create genre`,
         message: `Genre (${genreExist.genreName}) allready exist`,
+        error: 'Conflict',
+        status: 409,
       });
 
     return await this.prismaService.genre.create({
@@ -51,9 +51,9 @@ export class GenreService {
 
     if (!genre)
       throw new NotFoundException({
+        message: `Cannot update genre by id: ${id}`,
+        error: 'Not Found',
         status: 404,
-        message: `Not found, cannot update genre by id: ${id}`,
-        error: `genre with id (${id}) doesn't exist`,
       });
 
     return await this.prismaService.genre.update({
@@ -73,9 +73,9 @@ export class GenreService {
 
     if (!genre)
       throw new NotFoundException({
-        status: 404,
-        error: `Not found, cannot delete genre by id: ${id}`,
         message: `genre with id (${id}) doesn't exist`,
+        error: 'Not found',
+        status: 404,
       });
 
     return await this.prismaService.genre.delete({
