@@ -3,6 +3,7 @@ import {
   BadRequestException,
   ForbiddenException,
   Injectable,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { RegisterDto } from './dto/register.dto';
 import * as bcrypt from 'bcrypt';
@@ -27,12 +28,15 @@ export class AuthService {
     const { email, password } = loginDto;
 
     const loginUser = await this.prismaService.user.findUnique({
-      where: { email },
+      where: {
+        email: email,
+      },
     });
 
-    if (!loginUser?.email) {
-      throw new Error('User not found, please register before sign in');
-    }
+    if (!loginUser?.email)
+      throw new UnauthorizedException({
+        message: 'Cannot login, email not registered',
+      });
 
     const comparasion = await this.comparePasswords({
       password,

@@ -30,11 +30,13 @@ export class AuthController {
       await this.authService.signIn(loginDto, req, res);
       return res.status(HttpStatus.OK).json({
         message: 'Login successful',
+        status: HttpStatus.OK,
       });
     } catch (e) {
       return res.status(HttpStatus.UNAUTHORIZED).json({
         message: 'Invalid credentials',
         error: e,
+        status: HttpStatus.UNAUTHORIZED,
       });
     }
   }
@@ -49,11 +51,13 @@ export class AuthController {
       await this.authService.signUp(registerDto);
       return res.status(HttpStatus.CREATED).json({
         message: 'Registration successful',
+        status: HttpStatus.CREATED,
       });
     } catch (e) {
       return res.status(HttpStatus.CONFLICT).json({
         message: 'Registration failed',
         error: e,
+        status: HttpStatus.CONFLICT,
       });
     }
   }
@@ -64,11 +68,13 @@ export class AuthController {
       await this.authService.signOut(req, res);
       return res.status(HttpStatus.OK).json({
         message: 'Logout successful',
+        status: HttpStatus.OK,
       });
     } catch (e) {
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         message: 'Logout failed',
         error: e,
+        status: HttpStatus.INTERNAL_SERVER_ERROR,
       });
     }
   }
