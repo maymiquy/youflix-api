@@ -24,9 +24,9 @@ export class UserService {
 
     if (!user)
       throw new NotFoundException({
+        message: `Cannot update, User with id (${id}) doesn't exist`,
+        error: 'Not found',
         status: 404,
-        error: `Not found, cannot update user by id: ${id}`,
-        message: `User with id (${id}) doesn't exist`,
       });
 
     return await this.prismaService.user.update({
@@ -46,9 +46,9 @@ export class UserService {
 
     if (!user)
       throw new NotFoundException({
+        message: `Cannot delete, User with id (${id}) doesn't exist`,
+        error: 'Not found',
         status: 404,
-        error: `Not found, cannot delete user by id: ${id}`,
-        message: `User with id (${id}) doesn't exist`,
       });
 
     return await this.prismaService.user.delete({

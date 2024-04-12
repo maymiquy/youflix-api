@@ -28,19 +28,21 @@ export class UserController {
     try {
       if (data.length === 0)
         return res.status(HttpStatus.NOT_FOUND).send({
+          message: 'Cannot find users',
+          error: 'Not Found',
           status: HttpStatus.NOT_FOUND,
-          message: `Not found, Cannot find users`,
         });
 
       return res.status(HttpStatus.OK).json({
-        status: HttpStatus.OK,
         message: 'Successfully get all user',
+        status: HttpStatus.OK,
         data: data,
       });
     } catch (e) {
       return res.status(HttpStatus.BAD_REQUEST).send({
-        status: HttpStatus.BAD_REQUEST,
         message: `Error occurred while showing user : ${e}`,
+        error: 'Bad Request',
+        status: HttpStatus.BAD_REQUEST,
       });
     }
   }
@@ -55,19 +57,21 @@ export class UserController {
     try {
       if (!data)
         return res.status(HttpStatus.NOT_FOUND).send({
+          message: `Cannot find user by id: ${id}`,
+          error: 'Not found',
           status: HttpStatus.NOT_FOUND,
-          message: `Not found, Cannot find user by id: ${id}`,
         });
 
       return res.status(HttpStatus.OK).json({
-        status: HttpStatus.OK,
         message: `Successfully find user by id: ${id}`,
+        status: HttpStatus.OK,
         data: data,
       });
     } catch (e) {
       return res.status(HttpStatus.BAD_REQUEST).send({
-        status: HttpStatus.BAD_REQUEST,
         message: `Error occurred while get user by id: ${e}`,
+        error: 'Bad Request',
+        status: HttpStatus.BAD_REQUEST,
       });
     }
   }
@@ -82,14 +86,15 @@ export class UserController {
     const data = await this.userService.update(id, updateUserDto);
     try {
       return res.status(HttpStatus.OK).json({
-        status: HttpStatus.OK,
         message: `Successfully update user with id: ${id}`,
+        status: HttpStatus.OK,
         data: data,
       });
     } catch (e) {
       return res.status(HttpStatus.BAD_REQUEST).send({
-        status: HttpStatus.BAD_REQUEST,
         message: `Error occurred while update user with id: ${e}`,
+        error: 'Bad Request',
+        status: HttpStatus.BAD_REQUEST,
       });
     }
   }
@@ -103,14 +108,15 @@ export class UserController {
     const data = await this.userService.remove(id);
     try {
       return res.status(HttpStatus.OK).json({
-        status: HttpStatus.OK,
         message: `Successfully delete user by id: ${id}`,
+        status: HttpStatus.OK,
         data: data,
       });
     } catch (error) {
       return res.status(HttpStatus.BAD_REQUEST).send({
-        status: HttpStatus.BAD_REQUEST,
         message: `Error occurred while delete user by id: ${error}`,
+        error: 'Bad Request',
+        status: HttpStatus.BAD_REQUEST,
       });
     }
   }
@@ -126,19 +132,21 @@ export class UserController {
 
       if (data.length === 0)
         return res.status(HttpStatus.NOT_FOUND).send({
+          message: `Cannot search user ${query}, with query: ${query}`,
+          error: 'Not Found',
           status: HttpStatus.NOT_FOUND,
-          message: `Not found, Cannot search user ${query}, with query: ${query}`,
         });
 
       return res.status(HttpStatus.OK).json({
-        status: HttpStatus.OK,
         message: 'Successfully search user',
+        status: HttpStatus.OK,
         data: data,
       });
     } catch (e) {
       return res.status(HttpStatus.BAD_REQUEST).send({
-        status: HttpStatus.BAD_REQUEST,
         message: `Error occurred while search user with query: ${e}`,
+        error: 'Bad Request',
+        status: HttpStatus.BAD_REQUEST,
       });
     }
   }
@@ -153,19 +161,21 @@ export class UserController {
     try {
       if (data.length === 0)
         return res.status(HttpStatus.NOT_FOUND).send({
+          message: `Cannot find user by status: ${status}`,
+          error: 'Not found',
           status: HttpStatus.NOT_FOUND,
-          message: `Not found, Cannot find user by status: ${status}`,
         });
 
       return res.status(HttpStatus.OK).json({
-        status: HttpStatus.OK,
         message: `Successfully find user by status: ${status}`,
+        status: HttpStatus.OK,
         data: data,
       });
     } catch (error) {
       return res.status(HttpStatus.BAD_REQUEST).send({
-        status: HttpStatus.BAD_REQUEST,
         message: `Error occurred while find user by status: ${error}`,
+        error: 'Bad Request',
+        status: HttpStatus.BAD_REQUEST,
       });
     }
   }
