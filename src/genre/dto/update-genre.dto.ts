@@ -1,9 +1,15 @@
 import { PartialType } from '@nestjs/mapped-types';
 import { CreateGenreDto } from './create-genre.dto';
-import { IsNotEmpty, IsString } from 'class-validator';
+import { IsArray, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class UpdateGenreDto extends PartialType(CreateGenreDto) {
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   public genreName?: string;
+
+  @IsArray()
+  @IsString({ each: true })
+  @IsOptional()
+  @IsNotEmpty()
+  movies: string[];
 }

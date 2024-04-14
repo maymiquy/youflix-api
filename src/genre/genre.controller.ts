@@ -55,7 +55,7 @@ export class GenreController {
 
     data.length === 0
       ? res.status(HttpStatus.NOT_FOUND).send({
-          message: 'Cannot find genre is wmpty',
+          message: 'Cannot find genre is empty',
           error: 'Not found',
           status: HttpStatus.NOT_FOUND,
         })

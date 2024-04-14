@@ -3,17 +3,19 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { UpdateGenreDto } from './dto/update-genre.dto';
 import { PrismaService } from 'src/libs/prisma/prisma.service';
-import { Genre, Prisma } from '@prisma/client';
+import { Genre } from '@prisma/client';
+import { CreateGenreDto } from './dto/create-genre.dto';
+import { UpdateGenreDto } from './dto/update-genre.dto';
 
 @Injectable()
 export class GenreService {
   constructor(private readonly prismaService: PrismaService) {}
-  async createNew(data: Prisma.GenreCreateInput): Promise<Genre> {
+  async createNew(createGenre: CreateGenreDto): Promise<Genre> {
+    const { genreName } = createGenre;
     const genreExist = await this.prismaService.genre.findUnique({
       where: {
-        genreName: data.genreName,
+        genreName: genreName,
       },
     });
 
@@ -26,7 +28,7 @@ export class GenreService {
 
     return await this.prismaService.genre.create({
       data: {
-        ...data,
+        genreName,
       },
     });
   }
@@ -39,10 +41,8 @@ export class GenreService {
     return await this.prismaService.genre.findUnique({ where: { id: id } });
   }
 
-  async update(
-    id: string,
-    updateGenreDto: UpdateGenreDto
-  ): Promise<Genre | null> {
+  async update(id: string, updateGenre: UpdateGenreDto): Promise<Genre | null> {
+    const { genreName, movies } = updateGenre;
     const genre = await this.prismaService.genre.findUnique({
       where: {
         id: id,
@@ -59,7 +59,12 @@ export class GenreService {
     return await this.prismaService.genre.update({
       where: { id: id },
       data: {
-        ...updateGenreDto,
+        genreName,
+        movies: {
+          create: movies.map((input) => ({
+            movieId: input,
+          })),
+        },
       },
     });
   }
