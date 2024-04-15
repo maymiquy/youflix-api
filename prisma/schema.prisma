@@ -34,11 +34,11 @@ model User {
 }
 
 model Genre {
-  id        String  @id @unique @default(uuid()) @map("id")
-  genreName String  @unique @map("genre_name") @db.VarChar(100)
-  movies    Movie[]
+  id     String  @id @unique @default(uuid()) @map("id")
+  name   String  @unique @map("name") @db.VarChar(100)
+  movies Movie[]
 
-  @@index([id, genreName])
+  @@index([id, name])
   @@map("genres")
 }
 
@@ -46,8 +46,7 @@ model Movie {
   id          String        @id @unique @default(uuid()) @map("id")
   title       String        @map("title")
   description String        @map("description")
-  genreId     String        @map("genre_id")
-  genre       Genre         @relation(fields: [genreId], references: [id])
+  genres      Genre[]
   imgUrl      String        @map("img_url")
   director    String        @map("director")
   rate        String        @map("rate")
@@ -57,6 +56,6 @@ model Movie {
   createAt    DateTime      @default(now()) @map("created_at") @db.Timestamp(6)
   updatedAt   DateTime      @default(now()) @updatedAt @map("updated_at") @db.Timestamp(6)
 
-  @@index([id, title, genreId, rate, year, isPopular])
+  @@index([id, title, rate, year, isPopular])
   @@map("movies")
 }
