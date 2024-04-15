@@ -1,103 +1,95 @@
-import { MovieService } from './movie.service';
 import {
-  Body,
   Controller,
   Get,
-  HttpStatus,
-  Param,
   Post,
-  Req,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UseInterceptors,
+  UploadedFile,
   Res,
-  UseGuards,
+  HttpStatus,
+  Req,
 } from '@nestjs/common';
-import { Request, Response } from 'express';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { MovieService } from './movie.service';
 import { CreateMovieDto } from './dto/create-movie.dto';
-import { JwtAuthGuard } from 'src/libs/jwt/jwt.guard';
+import { UpdateMovieDto } from './dto/update-movie.dto';
+import { Movie } from '@prisma/client';
+import { Response } from 'express';
 
-@Controller({
-  path: 'api/movies',
-  version: '1',
-})
+@Controller('movies')
 export class MovieController {
   constructor(private readonly movieService: MovieService) {}
 
-  @UseGuards(JwtAuthGuard)
-  @Get()
-  index(@Req() req: Request, @Res() res: Response): Response<any> {
-    const result = this.movieService.findAll();
+  @Post()
+  @UseInterceptors(FileInterceptor('imgUrl'))
+  async create(
+    @Res() res: Response,
+    @Body() createMovieDto: CreateMovieDto,
+    @UploadedFile() file: Express.Multer.File
+  ): Promise<Movie | Response> {
+    const imageFile = await this.movieService.uploadImage(file);
+    const data = await this.movieService.create(createMovieDto, imageFile);
+
     try {
-      return res.status(HttpStatus.OK).send(
-        JSON.stringify({
-          message: 'Success to get all movies',
-          data: result,
-        })
-      );
-    } catch (e) {
-      return res
-        .status(HttpStatus.BAD_REQUEST)
-        .send(`Error occurred while showing all movies: ${e}`);
+      return res.status(HttpStatus.CREATED).json({
+        message: 'Successfully, create movie',
+        status: HttpStatus.CREATED,
+        data: data,
+      });
+    } catch (error) {
+      return res.status(HttpStatus.BAD_REQUEST).send({
+        message: `Error occurred while creating movie: ${error}`,
+        error: 'Bad Request',
+        status: HttpStatus.BAD_REQUEST,
+      });
     }
   }
 
-  @Get('/show/:id')
-  show(
-    @Param('id') movieId: string,
+  @Get()
+  async findAll(
     @Req() req: Request,
     @Res() res: Response
-  ) {
-    try {
-      return res
-        .status(HttpStatus.OK)
-        .send(this.movieService.findById(movieId));
-    } catch (e) {
-      return res
-        .status(HttpStatus.BAD_REQUEST)
-        .send(`Error occurred while showing movie: ${e}`);
-    }
-  }
+  ): Promise<Movie[] | Response> {
+    const data = await this.movieService.findAll();
 
-  @Get('/popular')
-  popularity(@Req() req: Request, @Res() res: Response) {
-    try {
-      return res
-        .status(HttpStatus.OK)
-        .send(this.movieService.findPopular(true));
-    } catch (e) {
-      return res
-        .status(HttpStatus.BAD_REQUEST)
-        .send(`Error occurred while showing popular movies: ${e}`);
-    }
-  }
-
-  @Get('/recomended')
-  recomended(@Req() req: Request, @Res() res: Response) {
-    try {
-      return res.status(HttpStatus.OK).send(this.movieService.findRecomended());
-    } catch (e) {
-      return res
-        .status(HttpStatus.BAD_REQUEST)
-        .send(`Error occurred while showing recomended movies: ${e}`);
-    }
-  }
-
-  @Post()
-  create(
-    @Req() req: Request,
-    @Res() res: Response,
-    @Body() validation: CreateMovieDto
-  ): Response<any> {
-    const result = this.movieService.addMovie(validation);
-    try {
-      return res.status(HttpStatus.OK).send(
-        JSON.stringify({
-          message: 'Success create movie',
-          data: result,
+    data.length === 0
+      ? res.status(HttpStatus.NOT_FOUND).send({
+          message: 'Cannot find movies is empty',
+          error: 'Not found',
+          status: HttpStatus.NOT_FOUND,
         })
-      );
-    } catch (e) {
-      return res
-        .status(HttpStatus.BAD_REQUEST)
-        .send(`Error occurred while adding new movie ${e}`);
+      : data;
+
+    try {
+      return res.status(HttpStatus.OK).json({
+        message: 'Successfully, get all movies',
+        status: HttpStatus.OK,
+        data: data,
+      });
+    } catch (error) {
+      return res.status(HttpStatus.BAD_REQUEST).send({
+        message: `Error occured while showing all movies: ${error}`,
+        error: 'Bad Request',
+        status: HttpStatus.BAD_REQUEST,
+      });
     }
+  }
+
+  @Get(':id')
+  findOne(@Param('id') id: string) {
+    return this.movieService.findOne(+id);
+  }
+
+  @Patch(':id')
+  update(@Param('id') id: string, @Body() updateMovieDto: UpdateMovieDto) {
+    return this.movieService.update(+id, updateMovieDto);
+  }
+
+  @Delete(':id')
+  remove(@Param('id') id: string) {
+    return this.movieService.remove(+id);
   }
 }

@@ -1,19 +1,52 @@
-import { IsBoolean, IsNotEmpty, IsString } from 'class-validator';
+import {
+  IsArray,
+  IsDateString,
+  IsEnum,
+  IsNotEmpty,
+  IsNumberString,
+  IsOptional,
+  IsString,
+} from 'class-validator';
+
+export enum PopularStatus {
+  POPULAR = 'POPULAR',
+  NOTPOPULAR = 'NOTPOPULAR',
+}
 
 export class CreateMovieDto {
-  @IsNotEmpty()
   @IsString()
-  id: string;
-
   @IsNotEmpty()
-  @IsString()
   title: string;
 
-  @IsNotEmpty()
   @IsString()
-  genre: string;
+  @IsOptional()
+  description: string;
 
+  @IsArray()
+  @IsString({ each: true })
   @IsNotEmpty()
-  @IsBoolean()
-  isPopular: boolean;
+  genres: string[];
+
+  @IsString()
+  @IsOptional()
+  imgUrl: string;
+
+  @IsString()
+  @IsNotEmpty()
+  director: string;
+
+  @IsNumberString()
+  @IsOptional()
+  rate: string;
+
+  @IsEnum(PopularStatus)
+  isPopular: PopularStatus;
+
+  @IsDateString()
+  @IsNotEmpty()
+  releaseDate: Date;
+
+  @IsNumberString()
+  @IsNotEmpty()
+  year: string;
 }

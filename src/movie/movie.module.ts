@@ -1,9 +1,10 @@
 import { Module } from '@nestjs/common';
-import { MovieController } from './movie.controller';
 import { MovieService } from './movie.service';
+import { MovieController } from './movie.controller';
+import { PrismaService } from 'src/libs/prisma/prisma.service';
 
 @Module({
   controllers: [MovieController],
-  providers: [MovieService]
+  providers: [MovieService, PrismaService],
 })
 export class MovieModule {}

@@ -1,97 +1,81 @@
-import { Injectable, Param } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateMovieDto } from './dto/create-movie.dto';
-
-export interface Movie {
-  id: string;
-  title: string;
-  genre: string;
-  isPopular: boolean;
-}
+import { UpdateMovieDto } from './dto/update-movie.dto';
+import { PrismaService } from 'src/libs/prisma/prisma.service';
+import * as path from 'path';
+import { createWriteStream } from 'fs';
+import { Movie } from '@prisma/client';
 
 @Injectable()
 export class MovieService {
-  private movies: CreateMovieDto[] = [
-    {
-      id: '1',
-      title: 'The Shawshank Redemption',
-      genre: 'Drama',
-      isPopular: true,
-    },
-    {
-      id: '2',
-      title: 'The Godfather',
-      genre: 'Drama',
-      isPopular: true,
-    },
-    {
-      id: '3',
-      title: 'The Godfather: Part II',
-      genre: 'Drama',
-      isPopular: true,
-    },
-    {
-      id: '4',
-      title: 'The Dark Knight',
-      genre: 'Action',
-      isPopular: true,
-    },
-    {
-      id: '5',
-      title: '12 Angry Men',
-      genre: 'Drama',
-      isPopular: false,
-    },
-  ];
+  constructor(private readonly prismaService: PrismaService) {}
 
-  // Provider Movies
-  findAll(): CreateMovieDto[] {
-    const result = this.movies;
+  async uploadImage(file: Express.Multer.File): Promise<string> {
+    if (!file) throw new BadRequestException('No file uploaded');
 
-    return result;
+    const maxSize = 2 * 1024 * 1024;
+    if (file.size > maxSize)
+      throw new BadRequestException('File size exceeds the limit (2MB)');
+
+    const extFile = path.extname(file.originalname);
+    const fileName = `poster-${Date.now()}${extFile}`;
+
+    // Todo in the futrure for production:
+    // const filePath = join(__dirname, '..', 'public', 'img', fileName);
+    const filePath = path.join(process.cwd(), 'public', 'img', fileName);
+
+    const stream = createWriteStream(filePath);
+    await new Promise((resolve, reject) => {
+      stream.on('error', (err) => reject(err));
+      stream.on('finish', () => resolve(fileName));
+      stream.write(file.buffer);
+      stream.end();
+    });
+
+    return fileName;
   }
 
-  findById(@Param('id') id: string) {
-    const result = this.movies.find((movie) => movie.id === id);
+  async create(
+    createMovieDto: CreateMovieDto,
+    fileName: string
+  ): Promise<Movie> {
+    const { releaseDate, genres } = createMovieDto;
+    const formatedDate = new Date(releaseDate).toISOString();
 
-    return result;
+    return await this.prismaService.movie.create({
+      data: {
+        ...createMovieDto,
+        imgUrl: fileName,
+        releaseDate: formatedDate,
+        genres: {
+          connect: genres.map((input) =>
+            input.length !== 36 ? { name: input } : { id: input }
+          ),
+        },
+      },
+      include: {
+        genres: true,
+      },
+    });
   }
 
-  findPopular(movieStatus: boolean) {
-    const data = this.movies.filter((movie) => movie.isPopular === movieStatus);
-
-    if (data.length === 0) {
-      return 'Data not found';
-    }
-
-    const result = {
-      message: 'Success to get movie by popularity',
-      data: data,
-    };
-
-    return JSON.stringify(result);
+  async findAll() {
+    return await this.prismaService.movie.findMany({
+      include: {
+        genres: true,
+      },
+    });
   }
 
-  findRecomended(): string {
-    const popularMovies = this.movies.filter(
-      (movie) => movie.isPopular === false
-    );
-    if (popularMovies.length === 0) {
-      return 'No popular movies found';
-    }
-    const shuffledMovies = popularMovies.sort(() => 0.5 - Math.random());
-    const data = shuffledMovies.slice(0, 8);
-
-    const result = {
-      message: 'Recommended movies',
-      data: data,
-    };
-
-    return JSON.stringify(result);
+  findOne(id: number) {
+    return `This action returns a #${id} movie`;
   }
 
-  addMovie(movie: CreateMovieDto): CreateMovieDto {
-    this.movies.push(movie);
+  update(id: number, updateMovieDto: UpdateMovieDto) {
+    return `This action updates a #${id} movie with ${updateMovieDto}`;
+  }
 
-    return movie;
+  remove(id: number) {
+    return `This action removes a #${id} movie`;
   }
 }
