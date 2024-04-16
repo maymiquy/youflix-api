@@ -12,23 +12,23 @@ import { UpdateGenreDto } from './dto/update-genre.dto';
 export class GenreService {
   constructor(private readonly prismaService: PrismaService) {}
   async createNew(createGenre: CreateGenreDto): Promise<Genre> {
-    const { genreName } = createGenre;
+    const { name } = createGenre;
     const genreExist = await this.prismaService.genre.findUnique({
       where: {
-        genreName: genreName,
+        name: name,
       },
     });
 
     if (genreExist)
       throw new ConflictException({
-        message: `Genre (${genreExist.genreName}) allready exist`,
+        message: `Genre (${genreExist.name}) allready exist`,
         error: 'Conflict',
         status: 409,
       });
 
     return await this.prismaService.genre.create({
       data: {
-        genreName,
+        name,
       },
     });
   }
@@ -42,7 +42,7 @@ export class GenreService {
   }
 
   async update(id: string, updateGenre: UpdateGenreDto): Promise<Genre | null> {
-    const { genreName, movies } = updateGenre;
+    const { name, movies } = updateGenre;
     const genre = await this.prismaService.genre.findUnique({
       where: {
         id: id,
@@ -59,11 +59,9 @@ export class GenreService {
     return await this.prismaService.genre.update({
       where: { id: id },
       data: {
-        genreName,
+        name,
         movies: {
-          create: movies.map((input) => ({
-            movieId: input,
-          })),
+          connect: movies.map((input) => ({ id: input }) || { title: input }),
         },
       },
     });

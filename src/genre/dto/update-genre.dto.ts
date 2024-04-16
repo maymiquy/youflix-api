@@ -5,7 +5,7 @@ import { IsArray, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 export class UpdateGenreDto extends PartialType(CreateGenreDto) {
   @IsString()
   @IsOptional()
-  public genreName?: string;
+  public name?: string;
 
   @IsArray()
   @IsString({ each: true })
