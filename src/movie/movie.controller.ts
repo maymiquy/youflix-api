@@ -79,8 +79,33 @@ export class MovieController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.movieService.findOne(+id);
+  async findOne(
+    @Param('id') id: string,
+    @Req() req: Request,
+    @Res() res: Response
+  ): Promise<Movie | Response | null> {
+    const data = await this.movieService.findOne(id);
+
+    if (!data)
+      return res.status(HttpStatus.NOT_FOUND).send({
+        message: `Cannot find movie with id: ${id}`,
+        error: 'Not found',
+        status: HttpStatus.NOT_FOUND,
+      });
+
+    try {
+      return res.status(HttpStatus.OK).json({
+        message: `Succesfully, get movie with id: ${id}`,
+        status: HttpStatus.OK,
+        data: data,
+      });
+    } catch (error) {
+      return res.status(HttpStatus.BAD_REQUEST).send({
+        message: `Error occured while showing movie: ${error}`,
+        error: 'Bad Request',
+        status: HttpStatus.BAD_REQUEST,
+      });
+    }
   }
 
   @Patch(':id')
@@ -89,7 +114,25 @@ export class MovieController {
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.movieService.remove(+id);
+  async remove(
+    @Param('id') id: string,
+    @Req() req: Request,
+    @Res() res: Response
+  ) {
+    const data = await this.movieService.remove(id);
+
+    try {
+      return res.status(HttpStatus.OK).json({
+        message: `Succesfully, delete movie with id: ${id}`,
+        status: HttpStatus.OK,
+        data: data,
+      });
+    } catch (error) {
+      return res.status(HttpStatus.BAD_REQUEST).send({
+        message: `Error occured while deleteing movie : ${error}`,
+        error: 'Bad Request',
+        status: HttpStatus.BAD_REQUEST,
+      });
+    }
   }
 }
