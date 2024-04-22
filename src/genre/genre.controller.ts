@@ -81,16 +81,15 @@ export class GenreController {
     @Req() req: Request,
     @Res() res: Response,
     @Param('id') id: string
-  ) {
+  ): Promise<Genre | Response | null> {
     const data = await this.genreService.findOne(id);
 
-    data === null || undefined
-      ? res.status(HttpStatus.NOT_FOUND).send({
-          message: `Cannot find genre by id: ${id}`,
-          error: 'Not Found',
-          status: HttpStatus.NOT_FOUND,
-        })
-      : data;
+    if (!data)
+      return res.status(HttpStatus.NOT_FOUND).send({
+        message: `Cannot find genre by id: ${id}`,
+        error: 'Not Found',
+        status: HttpStatus.NOT_FOUND,
+      });
 
     try {
       return res.status(HttpStatus.OK).json({
