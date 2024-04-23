@@ -39,6 +39,31 @@ export class MovieService {
     return fileName;
   }
 
+  async updateImage(file: Express.Multer.File): Promise<string | undefined> {
+    if (file) {
+      const maxSize = 2 * 1024 * 1024;
+      if (file.size > maxSize)
+        throw new BadRequestException('File size exceeds the limit (2MB)');
+
+      const extFile = path.extname(file.originalname);
+      const fileName = `poster-${Date.now()}${extFile}`;
+
+      // Todo in the futrure for production:
+      // const filePath = join(__dirname, '..', 'public', 'img', fileName);
+      const filePath = path.join(process.cwd(), 'public', 'img', fileName);
+
+      const stream = createWriteStream(filePath);
+      await new Promise((resolve, reject) => {
+        stream.on('error', (err) => reject(err));
+        stream.on('finish', () => resolve(fileName));
+        stream.write(file.buffer);
+        stream.end();
+      });
+
+      return fileName;
+    }
+  }
+
   async create(
     createMovieDto: CreateMovieDto,
     fileName: string
@@ -82,12 +107,56 @@ export class MovieService {
     });
   }
 
-  update(id: number, updateMovieDto: UpdateMovieDto) {
-    return `This action updates a #${id} movie with ${updateMovieDto}`;
+  async update(
+    id: string,
+    updateMovieDto: UpdateMovieDto,
+    fileName?: string
+  ): Promise<Movie> {
+    const { genres, releaseDate } = updateMovieDto;
+
+    const movie = await this.prismaService.movie.findUnique({
+      where: { id: id },
+    });
+
+    if (!movie)
+      throw new NotFoundException({
+        message: `Movie with id (${id}) doesn't exist`,
+        error: 'Not found',
+        status: 404,
+      });
+
+    const optionalDate = (input?: string | Date | undefined) => {
+      if (!input) return movie.releaseDate;
+
+      return new Date(input).toISOString();
+    };
+
+    const optionalFile = (input?: string | undefined) => {
+      if (!input) return movie.imgUrl;
+
+      return input;
+    };
+
+    return await this.prismaService.movie.update({
+      where: { id: id },
+      data: {
+        ...updateMovieDto,
+        imgUrl: optionalFile(fileName),
+        releaseDate: optionalDate(releaseDate),
+        genres: {
+          connect: genres?.map((input) =>
+            input.length !== 36 ? { name: input } : { id: input }
+          ),
+        },
+      },
+      include: {
+        genres: true,
+      },
+    });
   }
 
-  async remove(id: string): Promise<Movie | null | undefined> {
-    const movie = await this.prismaService.genre.findUnique({
+  async remove(id: string): Promise<Movie | null> {
+    const movie = await this.prismaService.movie.findUnique({
       where: {
         id: id,
       },
@@ -95,15 +164,13 @@ export class MovieService {
 
     if (!movie)
       throw new NotFoundException({
-        message: `movie with id (${id}) doesn't exist`,
+        message: `Movie with id (${id}) doesn't exist`,
         error: 'Not found',
         status: 404,
       });
 
     return await this.prismaService.movie.delete({
-      where: {
-        id: id,
-      },
+      where: { id: id },
     });
   }
 }

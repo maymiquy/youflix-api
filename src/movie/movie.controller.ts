@@ -109,8 +109,30 @@ export class MovieController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateMovieDto: UpdateMovieDto) {
-    return this.movieService.update(+id, updateMovieDto);
+  @UseInterceptors(FileInterceptor('imgUrl'))
+  async update(
+    @Param('id') id: string,
+    @Res() res: Response,
+    @Req() req: Request,
+    @Body() updateMovieDto: UpdateMovieDto,
+    @UploadedFile() file: Express.Multer.File
+  ): Promise<Movie | Response> {
+    const imageFile = await this.movieService.updateImage(file);
+    const data = await this.movieService.update(id, updateMovieDto, imageFile);
+
+    try {
+      return res.status(HttpStatus.OK).json({
+        message: `Succesfully, update movie with id: ${id}`,
+        status: HttpStatus.OK,
+        data: data,
+      });
+    } catch (error) {
+      return res.status(HttpStatus.BAD_REQUEST).send({
+        message: `Error occured while updating movie: ${error}`,
+        error: 'Bad Request',
+        status: HttpStatus.BAD_REQUEST,
+      });
+    }
   }
 
   @Delete(':id')
