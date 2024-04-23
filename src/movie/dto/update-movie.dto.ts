@@ -1,6 +1,12 @@
 import { PartialType } from '@nestjs/mapped-types';
 import { CreateMovieDto } from './create-movie.dto';
-import { IsDate, IsEnum, IsOptional, IsString } from 'class-validator';
+import {
+  IsArray,
+  IsDateString,
+  IsEnum,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 import { PopularStatus } from './create-movie.dto';
 
 export class UpdateMovieDto extends PartialType(CreateMovieDto) {
@@ -12,27 +18,28 @@ export class UpdateMovieDto extends PartialType(CreateMovieDto) {
   @IsOptional()
   description?: string;
 
-  @IsString()
+  @IsArray()
+  @IsString({ each: true })
   @IsOptional()
-  genreId?: string;
+  genres?: string[];
 
   @IsString()
   @IsOptional()
-  imgUrl: string;
+  imgUrl?: string;
 
   @IsString()
   @IsOptional()
-  director: string;
+  director?: string;
 
   @IsString()
   @IsOptional()
-  rate: string;
+  rate?: string;
 
   @IsEnum(PopularStatus)
   @IsOptional()
-  isPopular: PopularStatus;
+  isPopular?: PopularStatus;
 
-  @IsDate()
+  @IsDateString()
   @IsOptional()
   releaseDate?: Date;
 
