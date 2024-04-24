@@ -11,7 +11,7 @@ import { MovieModule } from './movie/movie.module';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: process.cwd() + '.env',
+      envFilePath: `.env.${process.env.NODE_ENV}`,
     }),
     MovieModule,
     AuthModule,

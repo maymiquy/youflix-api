@@ -1,23 +1,25 @@
 import { NestFactory } from '@nestjs/core';
-import { RequestMethod, ValidationPipe, VersioningType } from '@nestjs/common';
+import {
+  Logger,
+  RequestMethod,
+  ValidationPipe,
+  VersioningType,
+} from '@nestjs/common';
 import { AppModule } from './app.module';
-import * as dotenv from 'dotenv';
 import helmet from 'helmet';
 import * as cookieParser from 'cookie-parser';
-
-dotenv.config();
+import config from './config/configuration';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule, {
-    logger: ['error', 'warn', 'log'],
-  });
+  const app = await NestFactory.create(AppModule);
+  const logger = new Logger('Bootstrap');
+  const logLevel =
+    process.env.NODE_ENV === 'production'
+      ? 'info' && 'error' && 'warn'
+      : 'debug' && 'error';
 
-  const port = Number(process.env.APP_PORT);
-  const local = process.env.APP_CLIENT;
-  const host = process.env.APP_HOST;
-  const appName = process.env.APP_NAME;
   const cors = {
-    origin: [`${local}:${port}`, `${host}`],
+    origin: [`${config.client}:${config.port}`, `${config.host}`],
     methods: `GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS`,
   };
 
@@ -42,8 +44,16 @@ async function bootstrap() {
 
   app.enableCors(cors);
 
-  await app.listen(port, () =>
-    console.log(`${appName} running on port: ${port}`)
+  app.useLogger(new Logger(logLevel));
+
+  await app.listen(config.port, () =>
+    process.env.NODE_ENV === 'production'
+      ? logger.log(
+          `${config.appName} is running at port ${config.port} on ${config.host} in production mode.`
+        )
+      : logger.log(
+          `${config.appName} is running at port ${config.port} on ${config.client} in development mode.`
+        )
   );
 }
 
