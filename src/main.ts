@@ -20,6 +20,7 @@ async function bootstrap() {
 
   const cors = {
     origin: [`${config.client}:${config.port}`, `${config.host}`],
+    credentials: true,
     methods: `GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS`,
   };
 

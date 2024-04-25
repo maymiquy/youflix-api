@@ -1,6 +1,22 @@
-// This is your Prisma schema file,
+import * as fs from 'fs';
+import { join } from 'path';
+import { config } from 'dotenv';
+
+config();
+
+const databaseUrl =
+  process.env.NODE_ENV === 'production'
+    ? 'POSTGRES_PRISMA_URL'
+    : 'DATABASE_LOCAL_URL';
+
+const envMode =
+  process.env.NODE_ENV === 'production'
+    ? 'production mode'
+    : 'development mode';
+
+const schema = `// This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
-// development mode
+// ${envMode}
 
 generator client {
   provider = "prisma-client-js"
@@ -8,7 +24,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_LOCAL_URL")
+  url      = env("${databaseUrl}")
 }
 
 enum PopularStatus {
@@ -59,4 +75,14 @@ model Movie {
 
   @@index([id, title, rate, year, isPopular])
   @@map("movies")
+}
+`;
+
+switch (process.env.NODE_ENV) {
+  case 'production':
+    fs.writeFileSync(join(__dirname, '../../prisma/schema.prisma'), schema);
+    break;
+  default:
+    fs.writeFileSync(join(__dirname, '../prisma/schema.prisma'), schema);
+    break;
 }
