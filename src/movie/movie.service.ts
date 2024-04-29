@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { CreateMovieDto } from './dto/create-movie.dto';
 import { UpdateMovieDto } from './dto/update-movie.dto';
-import { PrismaService } from 'src/libs/prisma/prisma.service';
+import { PrismaService } from '../libs/prisma/prisma.service';
 import * as path from 'path';
 import { createWriteStream } from 'fs';
 import { Movie } from '@prisma/client';

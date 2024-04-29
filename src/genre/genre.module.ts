@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { GenreService } from './genre.service';
 import { GenreController } from './genre.controller';
-import { PrismaService } from 'src/libs/prisma/prisma.service';
+import { PrismaService } from '../libs/prisma/prisma.service';
 
 @Module({
   controllers: [GenreController],

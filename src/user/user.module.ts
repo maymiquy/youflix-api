@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { UserService } from './user.service';
 import { UserController } from './user.controller';
-import { PrismaService } from 'src/libs/prisma/prisma.service';
+import { PrismaService } from '../libs/prisma/prisma.service';
 
 @Module({
   controllers: [UserController],

@@ -1,4 +1,4 @@
-import { PrismaService } from 'src/libs/prisma/prisma.service';
+import { PrismaService } from '../libs/prisma/prisma.service';
 import {
   BadRequestException,
   ForbiddenException,
@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import { RegisterDto } from './dto/register.dto';
 import * as bcrypt from 'bcrypt';
-import { jwtSecret, expires } from 'src/utils/constant';
+import jwt from '../utils/constant';
 import { JwtService } from '@nestjs/jwt';
 import { Request, Response } from 'express';
 import { LoginDto } from './dto/login.dto';
@@ -56,7 +56,7 @@ export class AuthService {
       throw new ForbiddenException('Something went wrong, please try again');
     }
 
-    const expiresAt = new Date(Date.now() + Number(expires) * 60 * 1000);
+    const expiresAt = new Date(Date.now() + Number(jwt.expires) * 60 * 1000);
 
     return res.cookie('token', token, {
       expires: expiresAt,
@@ -106,7 +106,7 @@ export class AuthService {
     };
 
     return this.jwtService.sign(payload, {
-      secret: jwtSecret,
+      secret: jwt.secret,
     });
   }
 }

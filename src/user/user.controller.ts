@@ -13,7 +13,7 @@ import {
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { JwtAuthGuard } from 'src/libs/jwt/jwt.guard';
+import { JwtAuthGuard } from '../libs/jwt/jwt.guard';
 import { Request, Response } from 'express';
 import { ActiveStatus } from '@prisma/client';
 

@@ -1,17 +1,17 @@
-import { PrismaService } from 'src/libs/prisma/prisma.service';
+import { PrismaService } from '../libs/prisma/prisma.service';
 import { Module } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
-import { JwtStrategy } from 'src/libs/jwt/jwt.strategy';
-import { jwtSecret } from 'src/utils/constant';
+import { JwtStrategy } from '../libs/jwt/jwt.strategy';
+import jwt from '../utils/constant';
 
 @Module({
   imports: [
     JwtModule,
     PassportModule,
-    JwtModule.register({ secret: jwtSecret }),
+    JwtModule.register({ secret: jwt.secret }),
   ],
   controllers: [AuthController],
   providers: [PrismaService, AuthService, JwtStrategy],
