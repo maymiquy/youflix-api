@@ -1,17 +1,14 @@
 import { NestFactory } from '@nestjs/core';
-import {
-  Logger,
-  RequestMethod,
-  ValidationPipe,
-  VersioningType,
-} from '@nestjs/common';
+import { Logger, ValidationPipe, VersioningType } from '@nestjs/common';
 import { AppModule } from './app.module';
 import helmet from 'helmet';
-import * as cookieParser from 'cookie-parser';
+import cookieParser from 'cookie-parser';
 import config from './config/configuration';
+import { ExpressAdapter } from '@nestjs/platform-express';
+import serverless from 'serverless-http';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, new ExpressAdapter());
   const logger = new Logger('Bootstrap');
   const logLevel =
     process.env.NODE_ENV === 'production'
@@ -19,9 +16,9 @@ async function bootstrap() {
       : 'debug' && 'error';
 
   const cors = {
-    origin: [`${config.client}:${config.port}`, `${config.host}`],
+    origin: [`${config.client}`, `${config.host}`],
     credentials: true,
-    methods: `GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS`,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'],
   };
 
   app.enableVersioning({
@@ -35,9 +32,7 @@ async function bootstrap() {
     })
   );
 
-  app.setGlobalPrefix('v1/api', {
-    exclude: [{ path: 'health', method: RequestMethod.GET }],
-  });
+  app.setGlobalPrefix('v1/api');
 
   app.use(helmet());
 
@@ -46,6 +41,16 @@ async function bootstrap() {
   app.enableCors(cors);
 
   app.useLogger(new Logger(logLevel));
+
+  await app.init();
+
+  const httpServer = app.getHttpServer();
+  const handler = serverless(httpServer);
+
+  module.exports.handler = async (event: any, context: any) => {
+    const response = await handler(event, context);
+    return response;
+  };
 
   await app.listen(config.port, () =>
     process.env.NODE_ENV === 'production'
@@ -58,4 +63,4 @@ async function bootstrap() {
   );
 }
 
-bootstrap();
+export default bootstrap();
