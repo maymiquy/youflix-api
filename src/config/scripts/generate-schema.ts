@@ -80,9 +80,9 @@ model Movie {
 
 switch (process.env.NODE_ENV) {
   case 'production':
-    fs.writeFileSync(join(__dirname, '../../prisma/schema.prisma'), schema);
+    fs.writeFileSync(join(__dirname, '../../../prisma/schema.prisma'), schema);
     break;
   default:
-    fs.writeFileSync(join(__dirname, '../prisma/schema.prisma'), schema);
+    fs.writeFileSync(join(__dirname, '../../../prisma/schema.prisma'), schema);
     break;
 }

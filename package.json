@@ -3,6 +3,9 @@
   "version": "0.0.1",
   "description": "",
   "author": "",
+  "engines": {
+    "node": "18.18.0"
+  },
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
@@ -11,15 +14,16 @@
     "start": "nest start",
     "start:dev": "npm run generate:dev && cross-env NODE_ENV=development nest start --watch",
     "start:debug": "nest start --debug --watch",
-    "start:prod": "npm run generate:prod && cross-env NODE_ENV=production node dist/src/main",
+    "start:prod": "npm run generate:prod && cross-env NODE_ENV=production node dist/main",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
-    "generate:dev": "cross-env NODE_ENV=development ts-node scripts/generate-schema  && prisma generate",
-    "generate:prod": "cross-env NODE_ENV=production node dist/scripts/generate-schema  && prisma generate"
+    "generate:dev": "cross-env NODE_ENV=development ts-node src/config/scripts/generate-schema  && prisma generate",
+    "generate:prod": "cross-env NODE_ENV=production node dist/config/scripts/generate-schema  && prisma generate",
+    "postinstall": "npm run generate:prod"
   },
   "dependencies": {
     "@nestjs/common": "^10.0.0",
@@ -40,7 +44,8 @@
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
     "reflect-metadata": "^0.1.13",
-    "rxjs": "^7.8.1"
+    "rxjs": "^7.8.1",
+    "serverless-http": "^3.2.0"
   },
   "devDependencies": {
     "@nestjs/cli": "^10.0.0",
