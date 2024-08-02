@@ -22,7 +22,7 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "generate:dev": "cross-env NODE_ENV=development ts-node src/config/scripts/generate-schema  && prisma generate",
-    "generate:prod": "cross-env NODE_ENV=production node dist/config/scripts/generate-schema  && prisma generate",
+    "generate:prod": "cross-env NODE_ENV=production ts-node src/config/scripts/generate-schema  && prisma generate",
     "postinstall": "npm run generate:prod"
   },
   "dependencies": {
