@@ -6,14 +6,16 @@ import cookieParser from 'cookie-parser';
 import config from './config/configuration';
 import { ExpressAdapter } from '@nestjs/platform-express';
 import serverless from 'serverless-http';
+import {
+  APIGatewayProxyEvent,
+  APIGatewayProxyResult,
+  Context,
+} from 'aws-lambda';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, new ExpressAdapter());
   const logger = new Logger('Bootstrap');
-  const logLevel =
-    process.env.NODE_ENV === 'production'
-      ? 'info' && 'error' && 'warn'
-      : 'debug' && 'error';
+  const logLevels = process.env.NODE_ENV === 'production' ? 'info' : 'debug';
 
   const cors = {
     origin: [`${config.client}`, `${config.host}`],
@@ -40,17 +42,12 @@ async function bootstrap() {
 
   app.enableCors(cors);
 
-  app.useLogger(new Logger(logLevel));
+  app.useLogger(new Logger(logLevels));
 
   await app.init();
 
   const httpServer = app.getHttpServer();
   const handler = serverless(httpServer);
-
-  module.exports.handler = async (event: any, context: any) => {
-    const response = await handler(event, context);
-    return response;
-  };
 
   await app.listen(config.port, () =>
     process.env.NODE_ENV === 'production'
@@ -61,6 +58,23 @@ async function bootstrap() {
           `${config.appName} is running at port ${config.port} on ${config.client} in development mode.`
         )
   );
+
+  return async (event: APIGatewayProxyEvent, context: Context) => {
+    const response = await handler(event, context);
+    return {
+      statusCode: 200,
+      body: JSON.stringify(response),
+    };
+  };
 }
+
+export const handler = async (
+  event: APIGatewayProxyEvent,
+  context: Context
+): Promise<APIGatewayProxyResult> => {
+  const app = await bootstrap();
+  const response = await app(event, context);
+  return response;
+};
 
 export default bootstrap();
