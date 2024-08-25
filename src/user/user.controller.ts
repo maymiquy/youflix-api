@@ -16,12 +16,19 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { JwtAuthGuard } from '../libs/jwt/jwt.guard';
 import { Request, Response } from 'express';
 import { ActiveStatus } from '@prisma/client';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 
+@ApiTags('User')
 @UseGuards(JwtAuthGuard)
 @Controller('users')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
+  @ApiBearerAuth()
+  @ApiOperation({
+    description: 'Getting all users to show',
+    summary: 'Get all users',
+  })
   @Get()
   async findAll(@Req() req: Request, @Res() res: Response): Promise<any> {
     const data = await this.userService.findAll();
@@ -47,6 +54,11 @@ export class UserController {
     }
   }
 
+  @ApiBearerAuth()
+  @ApiOperation({
+    description: 'Getting user with params id',
+    summary: 'Get user by id',
+  })
   @Get(':id')
   async findOne(
     @Res() res: Response,
@@ -76,6 +88,11 @@ export class UserController {
     }
   }
 
+  @ApiBearerAuth()
+  @ApiOperation({
+    description: 'Updating user with params id',
+    summary: 'Update user by id',
+  })
   @Patch(':id')
   async update(
     @Res() res: Response,
@@ -99,6 +116,11 @@ export class UserController {
     }
   }
 
+  @ApiBearerAuth()
+  @ApiOperation({
+    description: 'Deleting user with params id',
+    summary: 'Delete user by id',
+  })
   @Delete(':id')
   async destroy(
     @Res() res: Response,
@@ -121,6 +143,11 @@ export class UserController {
     }
   }
 
+  @ApiBearerAuth()
+  @ApiOperation({
+    description: 'Searching user with query params',
+    summary: 'Search user by query params',
+  })
   @Get('/search')
   async search(
     @Res() res: Response,
@@ -151,6 +178,11 @@ export class UserController {
     }
   }
 
+  @ApiBearerAuth()
+  @ApiOperation({
+    description: 'Get user with params status',
+    summary: 'Get user by params status',
+  })
   @Get('/status/:status')
   async findStatus(
     @Res() res: Response,
