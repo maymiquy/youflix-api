@@ -18,11 +18,19 @@ import { CreateMovieDto } from './dto/create-movie.dto';
 import { UpdateMovieDto } from './dto/update-movie.dto';
 import { Movie } from '@prisma/client';
 import { Response } from 'express';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Movies')
 @Controller('movies')
 export class MovieController {
   constructor(private readonly movieService: MovieService) {}
 
+  @ApiBearerAuth()
+  @ApiOperation({
+    description:
+      'Create new movie with all required detail necessary for movies',
+    summary: 'Create new movie',
+  })
   @Post()
   @UseInterceptors(FileInterceptor('imgUrl'))
   async create(
@@ -48,6 +56,11 @@ export class MovieController {
     }
   }
 
+  @ApiBearerAuth()
+  @ApiOperation({
+    description: 'Getting all movies to show',
+    summary: 'Get all movies',
+  })
   @Get()
   async findAll(
     @Req() req: Request,
@@ -78,6 +91,11 @@ export class MovieController {
     }
   }
 
+  @ApiBearerAuth()
+  @ApiOperation({
+    description: 'Getting movie with params id',
+    summary: 'Get movie by id',
+  })
   @Get(':id')
   async findOne(
     @Param('id') id: string,
@@ -108,6 +126,11 @@ export class MovieController {
     }
   }
 
+  @ApiBearerAuth()
+  @ApiOperation({
+    description: 'Updating movie with params id',
+    summary: 'Update movie by id',
+  })
   @Patch(':id')
   @UseInterceptors(FileInterceptor('imgUrl'))
   async update(
@@ -135,6 +158,11 @@ export class MovieController {
     }
   }
 
+  @ApiBearerAuth()
+  @ApiOperation({
+    description: 'Deleting movie with params id',
+    summary: 'Delete movie by id',
+  })
   @Delete(':id')
   async remove(
     @Param('id') id: string,

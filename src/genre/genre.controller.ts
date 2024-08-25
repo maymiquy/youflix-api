@@ -17,11 +17,18 @@ import { CreateGenreDto } from './dto/create-genre.dto';
 import { UpdateGenreDto } from './dto/update-genre.dto';
 import { Genre } from '@prisma/client';
 import { Request, Response } from 'express';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Genres')
 @Controller('genres')
 export class GenreController {
   constructor(private readonly genreService: GenreService) {}
 
+  @ApiBearerAuth()
+  @ApiOperation({
+    description: 'Create new genre with detail name necessary for movies',
+    summary: 'Create new genre',
+  })
   @UsePipes(ValidationPipe)
   @Post()
   async create(
@@ -46,6 +53,11 @@ export class GenreController {
     }
   }
 
+  @ApiBearerAuth()
+  @ApiOperation({
+    description: 'Getting all genres to show',
+    summary: 'Get all genres',
+  })
   @Get()
   async findAll(
     @Req() req: Request,
@@ -76,6 +88,11 @@ export class GenreController {
     }
   }
 
+  @ApiBearerAuth()
+  @ApiOperation({
+    description: 'Getting genre with params id',
+    summary: 'Get genre by id',
+  })
   @Get(':id')
   async findOne(
     @Req() req: Request,
@@ -106,6 +123,11 @@ export class GenreController {
     }
   }
 
+  @ApiBearerAuth()
+  @ApiOperation({
+    description: 'Updating genre with params id',
+    summary: 'Update genre by id',
+  })
   @Patch(':id')
   async update(
     @Req() req: Request,
@@ -130,6 +152,11 @@ export class GenreController {
     }
   }
 
+  @ApiBearerAuth()
+  @ApiOperation({
+    description: 'Deleting genre with params id',
+    summary: 'Delete genre by id',
+  })
   @Delete(':id')
   async destroy(
     @Req() req: Request,
