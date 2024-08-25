@@ -9,6 +9,11 @@ const databaseUrl =
     ? 'POSTGRES_PRISMA_URL'
     : 'DATABASE_LOCAL_URL';
 
+const directDatabaseNonPooling =
+  process.env.NODE_ENV === 'production'
+    ? 'directUrl = env("POSTGRES_URL_NON_POOLING")'
+    : '';
+
 const envMode =
   process.env.NODE_ENV === 'production'
     ? 'production mode'
@@ -25,6 +30,7 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("${databaseUrl}")
+  ${directDatabaseNonPooling}
 }
 
 enum PopularStatus {

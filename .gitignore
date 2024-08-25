@@ -39,4 +39,3 @@ lerna-debug.log*
 .env.production
 Todo.txt
 .vercel
-vercel.json
