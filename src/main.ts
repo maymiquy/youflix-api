@@ -1,19 +1,13 @@
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { NestFactory } from '@nestjs/core';
 import { Logger, ValidationPipe, VersioningType } from '@nestjs/common';
 import { AppModule } from './app.module';
 import helmet from 'helmet';
 import cookieParser from 'cookie-parser';
 import config from './config/configuration';
-import { ExpressAdapter } from '@nestjs/platform-express';
-import serverless from 'serverless-http';
-import {
-  APIGatewayProxyEvent,
-  APIGatewayProxyResult,
-  Context,
-} from 'aws-lambda';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule, new ExpressAdapter());
+  const app = await NestFactory.create(AppModule, { cors: true });
   const logger = new Logger('Bootstrap');
   const logLevels = process.env.NODE_ENV === 'production' ? 'info' : 'debug';
 
@@ -22,6 +16,32 @@ async function bootstrap() {
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'],
   };
+
+  const docsConfig = new DocumentBuilder()
+    .setTitle('Youflix REST API')
+    .setDescription(
+      'Documentation for Spec Youflix REST API.\n\n`root endpoints: https://youflix-api.vercel.app/v1/api`'
+    )
+    .setBasePath('/v1/api')
+    .setVersion('1.0')
+    .addBearerAuth()
+    .setContact(
+      'maymiquy',
+      'https://www.maymiquy.cloud',
+      'miqhambali@gmail.com'
+    )
+    .build();
+
+  const document = SwaggerModule.createDocument(app, docsConfig);
+
+  SwaggerModule.setup('/', app, document, {
+    customCssUrl:
+      'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.15.5/swagger-ui.min.css',
+    customJs: [
+      'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.15.5/swagger-ui-bundle.js',
+      'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.15.5/swagger-ui-standalone-preset.js',
+    ],
+  });
 
   app.enableVersioning({
     type: VersioningType.URI,
@@ -44,11 +64,6 @@ async function bootstrap() {
 
   app.useLogger(new Logger(logLevels));
 
-  await app.init();
-
-  const httpServer = app.getHttpServer();
-  const handler = serverless(httpServer);
-
   await app.listen(config.port, () =>
     process.env.NODE_ENV === 'production'
       ? logger.log(
@@ -58,23 +73,6 @@ async function bootstrap() {
           `${config.appName} is running at port ${config.port} on ${config.client} in development mode.`
         )
   );
-
-  return async (event: APIGatewayProxyEvent, context: Context) => {
-    const response = await handler(event, context);
-    return {
-      statusCode: 200,
-      body: JSON.stringify(response),
-    };
-  };
 }
 
-export const handler = async (
-  event: APIGatewayProxyEvent,
-  context: Context
-): Promise<APIGatewayProxyResult> => {
-  const app = await bootstrap();
-  const response = await app(event, context);
-  return response;
-};
-
-export default bootstrap();
+bootstrap();
