@@ -14,11 +14,17 @@ import { RegisterDto } from './dto/register.dto';
 import { Request, Response } from 'express';
 import { LoginDto } from './dto/login.dto';
 import { User } from '@prisma/client';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Authentication')
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
+  @ApiOperation({
+    description: 'Login user with valid credentials.',
+    summary: 'Login user with credential email and password.',
+  })
   @UsePipes(ValidationPipe)
   @Post('login')
   async login(
@@ -41,6 +47,10 @@ export class AuthController {
     }
   }
 
+  @ApiOperation({
+    description: 'Register a new user with valid credentials.',
+    summary: 'Register user with credentials fullname email & password.',
+  })
   @UsePipes(ValidationPipe)
   @Post('register')
   async register(
@@ -62,6 +72,10 @@ export class AuthController {
     }
   }
 
+  @ApiOperation({
+    description: 'Logout user with clear cookie jwt token.',
+    summary: 'Logout user with clearing cookie.',
+  })
   @Get('logout')
   async logout(@Req() req: Request, @Res() res: Response): Promise<Response> {
     try {
